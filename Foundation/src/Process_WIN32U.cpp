@@ -253,12 +253,33 @@ void ProcessImpl::killImpl(PIDImpl pid)
 		{
 		case ERROR_ACCESS_DENIED:
 			throw NoPermissionException("cannot kill process");
-		case ERROR_NOT_FOUND: 
+		case ERROR_INVALID_PARAMETER: 
 			throw NotFoundException("cannot kill process");
 		default:
 			throw SystemException("cannot kill process");
 		}
 	}
+}
+
+
+bool ProcessImpl::isRunningImpl(const ProcessHandleImpl& handle) 
+{
+	bool result = true;
+	DWORD exitCode;
+	BOOL rc = GetExitCodeProcess(handle.process(), &exitCode);
+	if (!rc || exitCode != STILL_ACTIVE) result = false;
+	return result;
+}
+
+
+bool ProcessImpl::isRunningImpl(PIDImpl pid) 
+{
+	HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
+	bool result = true;
+	DWORD exitCode;
+	BOOL rc = GetExitCodeProcess(hProc, &exitCode);
+	if (!rc || exitCode != STILL_ACTIVE) result = false;
+	return result;
 }
 
 

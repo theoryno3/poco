@@ -17,6 +17,7 @@
 #include "Poco/JSON/Stringifier.h"
 #include "Poco/JSON/Array.h"
 #include "Poco/JSON/Object.h"
+#include "Poco/JSONString.h"
 #include <iomanip>
 
 
@@ -55,31 +56,21 @@ void Stringifier::stringify(const Var& any, std::ostream& out, unsigned int inde
 	{
 		out << "null";
 	}
-	else if ( any.isString() )
+	else if ( any.isNumeric() || any.isBoolean() )
 	{
-		std::string value = any.convert<std::string>();
-		formatString(value, out);
+		out << any.convert<std::string>();
 	}
 	else
 	{
-		out << any.convert<std::string>();
+		std::string value = any.convert<std::string>();
+		formatString(value, out);
 	}
 }
 
 
 void Stringifier::formatString(const std::string& value, std::ostream& out)
 {
-	out << '"';
-	for (std::string::const_iterator it = value.begin(),
-		 end = value.end(); it != end; ++it)
-	{
-		if (*it <= 0x1F || *it == '"' || *it == '\\' || *it == '/')
-		{
-			out << '\\';
-		}
-		out << *it;
-	}
-	out << '"';
+	Poco::toJSON(value, out);
 }
 
 

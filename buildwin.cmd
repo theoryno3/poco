@@ -5,7 +5,7 @@ rem
 rem buildwin.cmd
 rem
 rem POCO C++ Libraries command-line build script 
-rem for MS Visual Studio 2003 to 2013
+rem for MS Visual Studio 2008 to 2013
 rem
 rem $Id: //poco/1.4/dist/buildwin.cmd#2 $
 rem
@@ -18,7 +18,7 @@ rem
 rem Usage:
 rem ------
 rem buildwin VS_VERSION [ACTION] [LINKMODE] [CONFIGURATION] [PLATFORM] [SAMPLES] [TESTS] [TOOL]
-rem VS_VERSION:    71|80|90|100|110|120
+rem VS_VERSION:    90|100|110|120
 rem ACTION:        build|rebuild|clean
 rem LINKMODE:      static_mt|static_md|shared|all
 rem CONFIGURATION: release|debug|both
@@ -28,13 +28,6 @@ rem TESTS:         tests|notests
 rem TOOL:          devenv|vcexpress|wdexpress|msbuild
 rem
 rem VS_VERSION is required argument. Default is build all.
-
-rem Change OPENSSL_DIR to match your setup
-set OPENSSL_DIR=C:\OpenSSL
-set OPENSSL_INCLUDE=%OPENSSL_DIR%\include
-set OPENSSL_LIB=%OPENSSL_DIR%\lib;%OPENSSL_DIR%\lib\VC
-set INCLUDE=%INCLUDE%;%OPENSSL_INCLUDE%
-set LIB=%LIB%;%OPENSSL_LIB%
 
 rem Change MYSQL_DIR to match your setup
 set MYSQL_DIR=C:\PROGRA~1\MySQL\MYSQLS~1.5
@@ -46,47 +39,47 @@ set LIB=%LIB%;%MYSQL_LIB%
 set POCO_BASE=%CD%
 set PATH=%POCO_BASE%\bin64;%POCO_BASE%\bin;%PATH%
 
-rem VS_VERSION {71 | 80 | 90 | 100 | 110 | 120}
+rem VS_VERSION {90 | 100 | 110 | 120}
 if "%1"=="" goto usage
 set VS_VERSION=vs%1
 set VS_64_BIT_ENV=VC\bin\x86_amd64\vcvarsx86_amd64.bat
 
+rem PLATFORM [Win32|x64|WinCE|WEC2013]
+set PLATFORM=%5
+if "%PLATFORM%"=="" (set PLATFORM=Win32)
+if not "%PLATFORM%"=="Win32" (
+if not "%PLATFORM%"=="x64" (
+if not "%PLATFORM%"=="WinCE" (
+if not "%PLATFORM%"=="WEC2013" goto usage)))
+
 if not defined VCINSTALLDIR (
-  if %VS_VERSION%==vs71 (
-    call "%VS71COMNTOOLS%vsvars32.bat"
-  ) else (
-    if %VS_VERSION%==vs80 (
-      call "%VS80COMNTOOLS%vsvars32.bat"
+  if %VS_VERSION%==vs90 (
+    if %PLATFORM%==x64 (
+      call "%VS90COMNTOOLS%..\..\%VS_64_BIT_ENV%"
     ) else (
-      if %VS_VERSION%==vs90 (
-        if %5==x64 (
-          call "%VS90COMNTOOLS%..\..\%VS_64_BIT_ENV%"
-        ) else (
-          call "%VS90COMNTOOLS%vsvars32.bat"
-        )
+      call "%VS90COMNTOOLS%vsvars32.bat"
+    )
+  ) else (
+    if %VS_VERSION%==vs100 (
+      if %PLATFORM%==x64 (
+        call "%VS100COMNTOOLS%..\..\%VS_64_BIT_ENV%"
       ) else (
-        if %VS_VERSION%==vs100 (
-          if %5==x64 (
-            call "%VS100COMNTOOLS%..\..\%VS_64_BIT_ENV%"
-          ) else (
-            call "%VS100COMNTOOLS%vsvars32.bat"
-          )
+        call "%VS100COMNTOOLS%vsvars32.bat"
+      )
+    ) else (
+      if %VS_VERSION%==vs110 (
+        if %PLATFORM%==x64 (
+          call "%VS110COMNTOOLS%..\..\%VS_64_BIT_ENV%"
         ) else (
-          if %VS_VERSION%==vs110 (
-            if %5==x64 (
-              call "%VS110COMNTOOLS%..\..\%VS_64_BIT_ENV%"
-            ) else (
-              call "%VS110COMNTOOLS%vsvars32.bat"
-            ) 
+          call "%VS110COMNTOOLS%vsvars32.bat"
+        ) 
+      ) else (
+        if %VS_VERSION%==vs120 (
+          if %PLATFORM%==x64 (
+            call "%VS120COMNTOOLS%..\..\%VS_64_BIT_ENV%"
           ) else (
-            if %VS_VERSION%==vs120 (
-              if %5==x64 (
-                call "%VS120COMNTOOLS%..\..\%VS_64_BIT_ENV%"
-              ) else (
-                call "%VS120COMNTOOLS%vsvars32.bat
-              )     
-            ) 
-          ) 
+            call "%VS120COMNTOOLS%vsvars32.bat
+          )     
         ) 
       ) 
     ) 
@@ -135,42 +128,30 @@ if "%BUILD_TOOL%"=="msbuild" (
 
 rem ACTION [build|rebuild|clean]
 set ACTION=%2
+if "%ACTION%"=="" (set ACTION=build)
 if not "%ACTION%"=="build" (
 if not "%ACTION%"=="rebuild" (
-if not "%ACTION%"=="" (
-if not "%ACTION%"=="clean" goto usage)))
+if not "%ACTION%"=="clean" goto usage))
 
-if "%ACTION%"=="" (set ACTION="build")
-
-rem LINKMODE [static|shared|both]
+rem LINKMODE [static_mt|static_md|shared|all]
 set LINK_MODE=%3
+if "%LINK_MODE%"=="" (set LINK_MODE=all)
 if not "%LINK_MODE%"=="static_mt" (
 if not "%LINK_MODE%"=="static_md" (
 if not "%LINK_MODE%"=="shared" (
-if not "%LINK_MODE%"=="" (
-if not "%LINK_MODE%"=="all" goto usage))))
+if not "%LINK_MODE%"=="all" goto usage)))
 
 rem CONFIGURATION [release|debug|both]
 set CONFIGURATION=%4
+if "%CONFIGURATION%"=="" (set CONFIGURATION=both)
 if not "%CONFIGURATION%"=="release" (
 if not "%CONFIGURATION%"=="debug" (
-if not "%CONFIGURATION%"=="" (
-if not "%CONFIGURATION%"=="both" goto usage)))
+if not "%CONFIGURATION%"=="both" goto usage))
 
-rem PLATFORM [Win32|x64|WinCE|WEC2013]
-set PLATFORM=%5
-
-if not "%PLATFORM%"=="" (
-if not "%PLATFORM%"=="Win32" (
-if not "%PLATFORM%"=="x64" (
-if not "%PLATFORM%"=="WinCE" (
-if not "%PLATFORM%"=="WEC2013" goto usage))))
-
-if "%PLATFORM%"=="" (set PLATFORM_SUFFIX=) else (
 if "%PLATFORM%"=="Win32" (set PLATFORM_SUFFIX=) else (
 if "%PLATFORM%"=="x64" (set PLATFORM_SUFFIX=_x64) else (
 if "%PLATFORM%"=="WinCE" (set PLATFORM_SUFFIX=_CE) else (
-if "%PLATFORM%"=="WEC2013" (set PLATFORM_SUFFIX=_WEC2013)))))
+if "%PLATFORM%"=="WEC2013" (set PLATFORM_SUFFIX=_WEC2013))))
 
 if "%PLATFORM%"=="WEC2013" (
 if "%WEC2013_PLATFORM%"=="" (
@@ -518,7 +499,7 @@ exit /b 1
 echo Usage:
 echo ------
 echo buildwin VS_VERSION [ACTION] [LINKMODE] [CONFIGURATION] [PLATFORM] [SAMPLES] [TESTS] [TOOL]
-echo VS_VERSION:    "71|80|90|100|110|120"
+echo VS_VERSION:    "90|100|110|120"
 echo ACTION:        "build|rebuild|clean"
 echo LINKMODE:      "static_mt|static_md|shared|all"
 echo CONFIGURATION: "release|debug|both"

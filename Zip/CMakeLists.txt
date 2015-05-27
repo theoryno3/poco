@@ -1,32 +1,36 @@
-set(LIBNAME "PocoZip")
+set(LIBNAME "Zip")
+set(POCO_LIBNAME "Poco${LIBNAME}")
 
-aux_source_directory(src SRCS)
+# Sources
+file(GLOB SRCS_G "src/*.cpp")
+POCO_SOURCES_AUTO( SRCS ${SRCS_G})
 
-if (NOT POCO_STATIC)
-  add_definitions(-DZip_EXPORTS)
-endif (NOT POCO_STATIC)
+# Headers
+file(GLOB_RECURSE HDRS_G "include/*.h" )
+POCO_HEADERS_AUTO( SRCS ${HDRS_G})
 
-add_library( ${LIBNAME} ${LIB_MODE} ${SRCS} )
-set_target_properties( ${LIBNAME} 
-	PROPERTIES
-	VERSION ${SHARED_LIBRARY_VERSION} SOVERSION ${SHARED_LIBRARY_VERSION} )
-target_link_libraries( ${LIBNAME} PocoUtil PocoXML PocoFoundation)
-
-install(
-    DIRECTORY include/Poco
-    DESTINATION include
-    PATTERN ".svn" EXCLUDE
+add_library( "${LIBNAME}" ${LIB_MODE} ${SRCS} )
+add_library( "${POCO_LIBNAME}" ALIAS "${LIBNAME}")
+set_target_properties( "${LIBNAME}"
+    PROPERTIES
+    VERSION ${SHARED_LIBRARY_VERSION} SOVERSION ${SHARED_LIBRARY_VERSION}
+    OUTPUT_NAME ${POCO_LIBNAME}
+    DEFINE_SYMBOL Zip_EXPORTS
     )
-    
-install(
-    TARGETS ${LIBNAME}
-    LIBRARY DESTINATION lib${LIB_SUFFIX}
-    ARCHIVE DESTINATION lib${LIB_SUFFIX}
-    RUNTIME DESTINATION bin
+
+target_link_libraries( "${LIBNAME}" Util XML Foundation)
+target_include_directories( "${LIBNAME}"
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
+
+POCO_INSTALL("${LIBNAME}")
+POCO_GENERATE_PACKAGE("${LIBNAME}")
 
 if (ENABLE_TESTS)
-  add_subdirectory(samples)
-  add_subdirectory(testsuite)
+    add_subdirectory(samples)
+    add_subdirectory(testsuite)
 endif ()
 

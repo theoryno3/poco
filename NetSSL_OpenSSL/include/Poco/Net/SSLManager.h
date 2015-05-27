@@ -51,11 +51,11 @@ class NetSSL_API SSLManager
 	/// Proper initialization of SSLManager is critical.
 	///
 	/// SSLManager can be initialized manually, by calling initializeServer()
-	/// and/or initializeClient(), or intialization can be automatic. In the latter
+	/// and/or initializeClient(), or initialization can be automatic. In the latter
 	/// case, a Poco::Util::Application instance must be available and the required
 	/// configuration properties must be set (see below).
 	///
-	/// Note that manual intialization must happen very early in the application,
+	/// Note that manual initialization must happen very early in the application,
 	/// before defaultClientContext() or defaultServerContext() are called.
 	///
 	/// If defaultClientContext() and defaultServerContext() are never called
@@ -92,6 +92,8 @@ class NetSSL_API SSLManager
 	///            <sessionTimeout>0..n</sessionTimeout>           <!-- server only -->
 	///            <extendedVerification>true|false</extendedVerification>
 	///            <requireTLSv1>true|false</requireTLSv1>
+	///            <requireTLSv1_1>true|false</requireTLSv1_1>
+	///            <requireTLSv1_2>true|false</requireTLSv1_2>
 	///          </server|client>
 	///          <fips>false</fips>
 	///       </openSSL>
@@ -110,7 +112,7 @@ class NetSSL_API SSLManager
 	///      the Context class for details). Valid values are none, relaxed, strict, once.
 	///    - verificationDepth (integer, 1-9): Sets the upper limit for verification chain sizes. Verification
 	///      will fail if a certificate chain larger than this is encountered.
-	///    - loadDefaultCAFile (boolean): Specifies wheter the builtin CA certificates from OpenSSL are used.
+	///    - loadDefaultCAFile (boolean): Specifies whether the builtin CA certificates from OpenSSL are used.
 	///    - cipherList (string): Specifies the supported ciphers in OpenSSL notation
 	///      (e.g. "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH").
 	///    - privateKeyPassphraseHandler.name (string): The name of the class (subclass of PrivateKeyPassphraseHandler)
@@ -133,6 +135,8 @@ class NetSSL_API SSLManager
 	///    - extendedVerification (boolean): Enable or disable the automatic post-connection
 	///      extended certificate verification.
 	///    - requireTLSv1 (boolean): Require a TLSv1 connection.
+	///    - requireTLSv1_1 (boolean): Require a TLSv1.1 connection.
+	///    - requireTLSv1_2 (boolean): Require a TLSv1.2 connection.
 	///    - fips: Enable or disable OpenSSL FIPS mode. Only supported if the OpenSSL version 
 	///      that this library is built against supports FIPS mode.
 {
@@ -255,7 +259,8 @@ protected:
 	static Poco::Util::AbstractConfiguration& appConfig();
 		/// Returns the application configuration.
 		///
-		/// Throws a 
+		/// Throws a InvalidStateException if not application instance
+		/// is available.
 
 private:
 	SSLManager();
@@ -313,6 +318,8 @@ private:
 	static const std::string CFG_SESSION_TIMEOUT;
 	static const std::string CFG_EXTENDED_VERIFICATION;
 	static const std::string CFG_REQUIRE_TLSV1;
+	static const std::string CFG_REQUIRE_TLSV1_1;
+	static const std::string CFG_REQUIRE_TLSV1_2;
 
 #ifdef OPENSSL_FIPS
 	static const std::string CFG_FIPS_MODE;

@@ -32,7 +32,7 @@ Database::~Database()
 }
 
 
-double Database::count(Connection& connection, const std::string& collectionName) const
+int Database::count(Connection& connection, const std::string& collectionName) const
 {
 	Poco::SharedPtr<Poco::MongoDB::QueryRequest> countRequest = createCountRequest(collectionName);
 
@@ -42,7 +42,7 @@ double Database::count(Connection& connection, const std::string& collectionName
 	if ( response.documents().size() > 0 )
 	{
 		Poco::MongoDB::Document::Ptr doc = response.documents()[0];
-		return doc->get<double>("n");
+		return doc->get<int>("n");
 	}
 
 	return -1;
@@ -77,9 +77,6 @@ Poco::MongoDB::Document::Ptr Database::ensureIndex(Connection& connection, const
 	}
 
 	Poco::SharedPtr<Poco::MongoDB::InsertRequest> insertRequest = createInsertRequest("system.indexes");
-	insertRequest->documents().push_back(index);
-	connection.sendRequest(*insertRequest);
-
 	insertRequest->documents().push_back(index);
 	connection.sendRequest(*insertRequest);
 

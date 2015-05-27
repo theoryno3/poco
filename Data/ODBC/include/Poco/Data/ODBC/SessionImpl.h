@@ -59,7 +59,7 @@ public:
 		bool autoBind = true,
 		bool autoExtract = true);
 		/// Creates the SessionImpl. Opens a connection to the database.
-		/// Throws NotConnectedException if connection was not succesful.
+		/// Throws NotConnectedException if connection was not successful.
 
 	//@ deprecated
 	SessionImpl(const std::string& connect, 
@@ -177,7 +177,7 @@ private:
 
 	Poco::UInt32 getDefaultTransactionIsolation();
 
-	Poco::UInt32 transactionIsolation(SQLUINTEGER isolation);
+	Poco::UInt32 transactionIsolation(SQLULEN isolation);
 
 	std::string            _connector;
 	const ConnectionHandle _db;
